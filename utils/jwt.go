@@ -1,21 +1,21 @@
 package utils
 
 import (
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"log"
 	"os"
 	"time"
 )
 
 var (
-	jwtKey        = []byte(getEnvOrPanic("JWT_SECRET"))
-	jwtRefreshKey = []byte(getEnvOrPanic("JWT_REFRESH_SECRET"))
+	jwtKey        = getEnvOrPanic("JWT_SECRET")
+	jwtRefreshKey = getEnvOrPanic("JWT_REFRESH_SECRET")
 )
 
 type Claims struct {
 	UserID int    `json:"user_id"`
 	Email  string `json:"email"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 func getEnvOrPanic(key string) []byte {
@@ -31,8 +31,8 @@ func GenerateJWT(userID int, email string) (string, string, error) {
 	claims := &Claims{
 		UserID: userID,
 		Email:  email,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
 	}
 
@@ -46,8 +46,8 @@ func GenerateJWT(userID int, email string) (string, string, error) {
 	refreshClaims := &Claims{
 		UserID: userID,
 		Email:  email,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: refreshExpirationTime.Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(refreshExpirationTime),
 		},
 	}
 
