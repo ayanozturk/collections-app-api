@@ -10,8 +10,11 @@ import (
 
 func main() {
 	router := gin.Default()
-
-	dataSourceName := os.Getenv("MYSQL_DSN")
+	dsn := os.Getenv("MYSQL_DSN")
+	if dsn == "" {
+		dsn = "app:app@tcp(localhost:3306)/app"
+	}
+	dataSourceName := dsn
 	database.InitDB(dataSourceName)
 
 	collectionRepo := repositories.NewCollectionRepository()
