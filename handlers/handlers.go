@@ -8,10 +8,14 @@ import (
 	"net/http"
 )
 
-var collectionRepo repositories.CollectionRepository
+var (
+	collectionRepo repositories.CollectionRepository
+	userRepo       repositories.UserRepository
+)
 
-func InitHandlers(repo repositories.CollectionRepository) {
-	collectionRepo = repo
+func InitHandlers(collectionRepoParam repositories.CollectionRepository, userRepoParam repositories.UserRepository) {
+	collectionRepo = collectionRepoParam
+	userRepo = userRepoParam
 }
 
 func GetCollections(c *gin.Context) {
@@ -43,4 +47,39 @@ func AddCollection(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, newCollection)
+}
+
+func RegisterUser(c *gin.Context) {
+	var newUser models.User
+	if err := c.ShouldBindJSON(&newUser); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid input"})
+		return
+	}
+
+	err := userRepo.Register(&newUser)
+	if err != nil {
+		log.Printf("Error in RegisterUser handler: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
+		return
+	}
+	newUser.Password = ""
+	c.JSON(http.StatusCreated, gin.H{"message": "user registered successfully"})
+}
+
+func LoginUser(c *gin.Context) {
+	var loginRequest models.User
+	if err := c.ShouldBindJSON(&loginRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid input"})
+		return
+	}
+
+	user, err := userRepo.Login(loginRequest.Email, loginRequest.Password)
+	if err != nil {
+		log.Printf("Error in LoginUser handler: %v", err)
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "invalid email or password"})
+		return
+	}
+
+	user.Password = ""
+	c.JSON(http.StatusOK, user)
 }

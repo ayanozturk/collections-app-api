@@ -12,3 +12,9 @@ type Item struct {
 	Name         string `json:"name"`
 	Description  string `json:"description" db:"description"`
 }
+
+type User struct {
+	ID       int    `json:"id" db:"id"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

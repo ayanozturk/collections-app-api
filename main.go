@@ -34,10 +34,15 @@ func main() {
 	database.InitDB(dataSourceName)
 
 	collectionRepo := repositories.NewCollectionRepository()
-	handlers.InitHandlers(collectionRepo)
+	userRepo := repositories.NewUserRepository()
+	handlers.InitHandlers(collectionRepo, userRepo)
 
 	router.GET("/collections", handlers.GetCollections)
 	router.POST("/collections", handlers.AddCollection)
+
+	// User routes
+	router.POST("/register", handlers.RegisterUser)
+	router.POST("/login", handlers.LoginUser)
 
 	err := router.Run(":8080")
 	if err != nil {
