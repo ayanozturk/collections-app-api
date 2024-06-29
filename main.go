@@ -37,10 +37,12 @@ func main() {
 	userRepo := repositories.NewUserRepository()
 	handlers.InitHandlers(collectionRepo, userRepo)
 
-	router.GET("/collections", handlers.GetCollections)
-	router.POST("/collections", handlers.AddCollection)
+	protected := router.Group("/")
+	protected.Use(handlers.AuthMiddleware())
+	protected.GET("/collections", handlers.GetCollections)
+	protected.POST("/collections", handlers.AddCollection)
 
-	// User routes
+	// Public routes
 	router.POST("/register", handlers.RegisterUser)
 	router.POST("/login", handlers.LoginUser)
 

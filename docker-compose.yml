@@ -23,6 +23,8 @@ services:
       - db
     environment:
       MYSQL_DSN: "app:app@tcp(db:3306)/app"
+      JWT_SECRET: "jwt_secret"
+      JWT_REFRESH_SECRET: "jwt_refresh_secret"
 
   migrate:
     build:
