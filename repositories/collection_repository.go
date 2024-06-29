@@ -8,6 +8,7 @@ import (
 
 type CollectionRepository interface {
 	GetCollections() ([]models.Collection, error)
+	AddCollection(collection *models.Collection) error
 }
 
 type repository struct{}
@@ -46,4 +47,23 @@ func (r *repository) GetCollections() ([]models.Collection, error) {
 	}
 
 	return collections, nil
+}
+
+func (r *repository) AddCollection(collection *models.Collection) error {
+	query := "INSERT INTO collections (id, name) VALUES (:id, :name)"
+	result, err := database.DB.NamedExec(query, collection)
+	if err != nil {
+		log.Printf("Error adding collection: %v", err)
+		return err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		log.Printf("Error getting last insert ID: %v", err)
+		return err
+	}
+
+	collection.ID = int(id)
+
+	return nil
 }

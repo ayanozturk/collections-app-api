@@ -21,6 +21,7 @@ func main() {
 	handlers.InitHandlers(collectionRepo)
 
 	router.GET("/collections", handlers.GetCollections)
+	router.POST("/collections", handlers.AddCollection)
 
 	err := router.Run(":8080")
 	if err != nil {
